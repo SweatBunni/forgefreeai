@@ -1,7 +1,7 @@
-# Use the official Ubuntu base image
+# Use official Ubuntu base
 FROM ubuntu:22.04
 
-# Avoid prompts from apt
+# Avoid interactive prompts
 ENV DEBIAN_FRONTEND=noninteractive
 
 # Install dependencies
@@ -12,11 +12,15 @@ RUN apt-get update && apt-get install -y \
     zstd \
     && rm -rf /var/lib/apt/lists/*
 
-# Install Ollama
+# Set the port that Render will assign
+ENV PORT=11434
+EXPOSE $PORT
+
+# Install Ollama CLI
 RUN curl -fsSL https://ollama.com/install.sh | sh
 
-# Expose the port for Render
-EXPOSE 11434
+# Pull the model (this may take a while)
+RUN ollama pull qwen2.5-coder:14b
 
 # Start Ollama server on Render's assigned port
-CMD ["sh", "-c", "ollama serve --port ${PORT:-11434}"]
+CMD ["sh", "-c", "ollama serve --port $PORT"]
