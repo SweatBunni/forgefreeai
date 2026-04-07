@@ -4,13 +4,19 @@ FROM ubuntu:22.04
 # Avoid prompts from apt
 ENV DEBIAN_FRONTEND=noninteractive
 
-# Install any dependencies you need
+# Install dependencies
 RUN apt-get update && apt-get install -y \
     curl \
     git \
     python3 \
+    zstd \
     && rm -rf /var/lib/apt/lists/*
 
-# Render requires a service to listen on a port
-# This is a dummy command to keep the container alive and listening
-CMD ["sh", "-c", "echo 'Ubuntu container started' && tail -f /dev/null"]
+# Install Ollama
+RUN curl -fsSL https://ollama.com/install.sh | sh
+
+# Expose the port for Render
+EXPOSE 11434
+
+# Start Ollama server on Render's assigned port
+CMD ["sh", "-c", "ollama serve --port ${PORT:-11434}"]
